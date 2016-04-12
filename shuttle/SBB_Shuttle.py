@@ -18,7 +18,7 @@ DATA_DELIMETER = ','
 INSTRUCTION_POP_SIZE        = 50 
 SYMBIONT_POP_SIZE           = 200
 PROGRAM_MIN_INSTRUCTIONS    = 1
-PROGRAM_MAX_INSTRUCTIONS    = 5
+PROGRAM_MAX_INSTRUCTIONS    = 7
 TRAINING_PERCENT            = 70
 RELATIVE_NOVELTY_WEIGHT     = 0.5
 
@@ -1002,7 +1002,7 @@ def printAllRelevantAttributesForLabels(isTest):
         fp = open(filename)
     except IOError:
         # If not exists, create the file
-        fp = open(filename, 'w+')
+        fp = open(filename, 'wb')
         
     print "writing to file: ", filename
     try:
