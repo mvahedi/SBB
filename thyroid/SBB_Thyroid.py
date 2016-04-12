@@ -292,7 +292,7 @@ class symbiont:
         return sources        
 
 class team:
-    def evaluate_team(self, exemplar):
+    def evaluate_team(self, exemplar, updateAttributes = False):
         isCorrect = False
         for symbiont in self.symbionts:
             symbiont.reset()
@@ -302,7 +302,8 @@ class team:
         if LABELS[self.action] == exemplar[LABEL_INDEX]:
             self.updateActiveSymbionts()
             isCorrect = True
-            updateRelevantAttributesForLabels(self.action, self.symbionts[0].getAttributes())
+            if updateAttributes == True:
+                updateRelevantAttributesForLabels(self.action, self.symbionts[0].getAttributes())
             self.correct_count[self.action] = self.correct_count[self.action] + 1    
         return isCorrect
 
@@ -1078,7 +1079,7 @@ def rank_teams(isTest = False, isAll = False):
 
     for exemplar in rankData:
         for host in host_population:
-            host.evaluate_team(exemplar)
+            host.evaluate_team(exemplar, isTest or isAll)
 
     for host in host_population:
         host.calculateDetectionRates(isTest, isAll)
@@ -1092,7 +1093,7 @@ def rank_teams(isTest = False, isAll = False):
         isDetected = False;
         label = LABELS.index(exemplar[LABEL_INDEX])
         for host in host_population:
-            isCorrect = host.evaluate_team(exemplar)
+            isCorrect = host.evaluate_team(exemplar, isTest or isAll)
             if isCorrect or isDetected:
                 acc = host.getAccumulativeCorrectCount(label) + 1
                 host.setAccumulativeCorrectCount(label, acc)
