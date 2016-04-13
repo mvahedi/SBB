@@ -11,8 +11,13 @@ from decimal import *
 ###CONSTANTS - AKA CONFIGURATION
 ###############################################################
 
+### initialization config
 LABELS = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
 LABEL_COUNT = len(LABELS)
+DATA_DELIMITER = ','
+OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
+OP_COUNT = len(OPERATORS)
+LABEL_INDEX = 4
 
 INSTRUCTION_POP_SIZE        = 100 
 SYMBIONT_POP_SIZE           = 500
@@ -28,6 +33,7 @@ MAX_TEAM_SIZE               = 10
 POPULATION_REMOVAL_RATE     = 0.20
 POPULATION_PARENT_RATE      = POPULATION_REMOVAL_RATE
 
+### Rates for Variation Operators
 TEAM_ADD_RATE               = 0.7
 TEAM_DELETE_RATE            = 0.7
 SYMBIONT_MODIFICATION_RATE  = 0.2
@@ -38,17 +44,13 @@ INSTRUCTION_MUTATION_RATE   = 0.1
 INSTRUCTION_SWAP_RATE       = 0.1
 
 
-# Number of times to try before we give up
+### Number of times to try before we give up
 MAX_ALLOWABLE_GENERATIONS   = 50
 MIN_TEAM_SCORE = 0.85
 
-OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
-LABEL_INDEX = 4
-
-OP_COUNT = len(OPERATORS)
+### genotypic configurations
 TARGET_COUNT = 2
 SOURCE_COUNT = 4
-
 MODE_BIT_COUNT = 1
 OP_BIT_COUNT = 3
 TARGET_BIT_COUNT = 1
@@ -456,7 +458,7 @@ def read_data():
     global label_disctribution
     with open('iris.csv') as data_file:
         for line in data_file:
-            data.append(line.strip().split(','))
+            data.append(line.strip().split(DATA_DELIMITER))
     
     data_count = len(data)
     index = 0

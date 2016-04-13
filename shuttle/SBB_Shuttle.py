@@ -11,14 +11,18 @@ from decimal import *
 ###CONSTANTS - AKA CONFIGURATION
 ###############################################################
 
+### initialization config
 LABELS = ['1','2','3','4','5','6','7']
 LABEL_COUNT = len(LABELS)
-DATA_DELIMETER = ','
+DATA_DELIMITER = ','
+OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
+OP_COUNT = len(OPERATORS)
+LABEL_INDEX = 9
 
 INSTRUCTION_POP_SIZE        = 50 
 SYMBIONT_POP_SIZE           = 200
-PROGRAM_MIN_INSTRUCTIONS    = 1
-PROGRAM_MAX_INSTRUCTIONS    = 7
+PROGRAM_MIN_INSTRUCTIONS    = 2
+PROGRAM_MAX_INSTRUCTIONS    = 10
 TRAINING_PERCENT            = 70
 RELATIVE_NOVELTY_WEIGHT     = 0.5
 
@@ -29,6 +33,7 @@ MAX_TEAM_SIZE               = 10
 POPULATION_REMOVAL_RATE     = 0.20
 POPULATION_PARENT_RATE      = POPULATION_REMOVAL_RATE
 
+### Rates for Variation Operators
 TEAM_ADD_RATE               = 0.7
 TEAM_DELETE_RATE            = 0.7
 SYMBIONT_MODIFICATION_RATE  = 0.2
@@ -40,24 +45,21 @@ INSTRUCTION_SWAP_RATE       = 0.1
 LABEL_SAMPLE_COUNT          = 80
 
 
-# Number of times to try before we give up
+### Number of times to try before we give up
 MAX_ALLOWABLE_GENERATIONS   = 500
 MIN_TEAM_SCORE = 0.85
+SAVE_GENERATIONS = 5
 
-OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
-LABEL_INDEX = 9
-
-OP_COUNT = len(OPERATORS)
+### genotypic configurations
 TARGET_COUNT = 8
 SOURCE_COUNT = 9
-
 MODE_BIT_COUNT = 1
 OP_BIT_COUNT = 3
 TARGET_BIT_COUNT = 3
 SOURCE_BIT_COUNT = 4
 ENCODED_BIT_COUNT = MODE_BIT_COUNT + OP_BIT_COUNT + TARGET_BIT_COUNT + SOURCE_BIT_COUNT
 ENCODED_DECIMAL_EQUIVELANT = 2 ** ENCODED_BIT_COUNT
-SAVE_GENERATIONS = 5
+
 
 ###############################################################
 ###Global Variables
@@ -296,7 +298,7 @@ class team:
         if LABELS[self.action] == exemplar[LABEL_INDEX]:
             self.updateActiveSymbionts()
             isCorrect = True
-            updateRelevantAttributesForLabels(self.action, self.symbionts[0].getAttributes())
+            #updateRelevantAttributesForLabels(self.action, self.symbionts[0].getAttributes())
             self.correct_count[self.action] = self.correct_count[self.action] + 1    
         return isCorrect    
 
@@ -471,7 +473,7 @@ def read_data_file():
     print '****** Reading Data ... '
     with open('shuttle_trn.data') as data_file:
         for line in data_file:
-            data.append(line.strip().split(DATA_DELIMETER))
+            data.append(line.strip().split(DATA_DELIMITER))
 
     data_count = len(data)
     index = 0
@@ -537,7 +539,7 @@ def read_test_data():
     global test_label_disctribution
     with open('shuttle_test.data') as data_file:
         for line in data_file:
-            test_data.append(line.strip().split(DATA_DELIMETER))
+            test_data.append(line.strip().split(DATA_DELIMITER))
     
     test_data_count = len(test_data)
     print "Test Data Count ", test_data_count
@@ -564,7 +566,7 @@ def read_train_data():
     train_data = []
     with open('shuttle_trn.data') as data_file:
         for line in data_file:
-            train_data.append(line.strip().split(DATA_DELIMETER))
+            train_data.append(line.strip().split(DATA_DELIMITER))
     train_data_count = len(train_data)
     print "All training Data Count ", train_data
     index = 0
@@ -964,7 +966,7 @@ def saveGenerationResults(isTest = False):
                     , row["Distance"],row['ActiveSymbiontCount'],row['Score']])  
     finally:
         myfile.close() 
-    printAllRelevantAttributesForLabels(isTest)           
+    #printAllRelevantAttributesForLabels(isTest)           
 
 def resetRelevantAttributesForLables():
     global attributes_relevant_to_label
@@ -1201,7 +1203,7 @@ def run_gp():
     print '****** Initial host population size: ', len(host_population)
     stop_criteria_met = False
     while (stop_criteria_met == False):
-        resetRelevantAttributesForLables()
+        #resetRelevantAttributesForLables()
         generation+=1
         optimal_detection_rate_reached = evaluate_teams()
         # Only save results for every 10 generation

@@ -11,9 +11,13 @@ from decimal import *
 ###CONSTANTS - AKA CONFIGURATION
 ###############################################################
 
+### initialization config
 LABELS = ['1','2','3']
 LABEL_COUNT = len(LABELS)
-DATA_DELIMETER = ' '
+DATA_DELIMITER = ' '
+OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
+OP_COUNT = len(OPERATORS)
+LABEL_INDEX = 21
 
 INSTRUCTION_POP_SIZE        = 50 
 SYMBIONT_POP_SIZE           = 200
@@ -29,6 +33,7 @@ MAX_TEAM_SIZE               = 10
 POPULATION_REMOVAL_RATE     = 0.20
 POPULATION_PARENT_RATE      = POPULATION_REMOVAL_RATE
 
+### Rates for Variation Operators
 TEAM_ADD_RATE               = 0.7
 TEAM_DELETE_RATE            = 0.7
 SYMBIONT_MODIFICATION_RATE  = 0.2
@@ -39,25 +44,21 @@ INSTRUCTION_MUTATION_RATE   = 0.1
 INSTRUCTION_SWAP_RATE       = 0.1
 LABEL_SAMPLE_COUNT          = 20
 
-
-# Number of times to try before we give up
+### Number of times to try before we give up
 MAX_ALLOWABLE_GENERATIONS   = 250
 MIN_TEAM_SCORE = 0.85
+SAVE_GENERATIONS = 5
 
-OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
-LABEL_INDEX = 21
-
-OP_COUNT = len(OPERATORS)
+### genotypic configurations
 TARGET_COUNT = 4
 SOURCE_COUNT = 21
-
 MODE_BIT_COUNT = 1
 OP_BIT_COUNT = 3
 TARGET_BIT_COUNT = 2
 SOURCE_BIT_COUNT = 5
 ENCODED_BIT_COUNT = MODE_BIT_COUNT + OP_BIT_COUNT + TARGET_BIT_COUNT + SOURCE_BIT_COUNT
 ENCODED_DECIMAL_EQUIVELANT = 2 ** ENCODED_BIT_COUNT
-SAVE_GENERATIONS = 5
+
 
 ###############################################################
 ###Global Variables
@@ -479,7 +480,7 @@ def read_data_file():
     print '****** Reading Data ... '
     with open('ann-train.data') as data_file:
         for line in data_file:
-            data.append(line.strip().split(DATA_DELIMETER))
+            data.append(line.strip().split(DATA_DELIMITER))
 
     data_count = len(data)
     index = 0
@@ -545,7 +546,7 @@ def read_test_data():
     global test_label_disctribution
     with open('ann-test.data') as data_file:
         for line in data_file:
-            test_data.append(line.strip().split(DATA_DELIMETER))
+            test_data.append(line.strip().split(DATA_DELIMITER))
     
     test_data_count = len(test_data)
     print "Test Data Count ", test_data_count
@@ -572,7 +573,7 @@ def read_train_data():
     train_data = []
     with open('ann-train.data') as data_file:
         for line in data_file:
-            train_data.append(line.strip().split(DATA_DELIMETER))
+            train_data.append(line.strip().split(DATA_DELIMITER))
     train_data_count = len(train_data)
     print "All training Data Count ", train_data
     index = 0
