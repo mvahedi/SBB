@@ -17,7 +17,7 @@ DATA_DELIMETER = ' '
 
 INSTRUCTION_POP_SIZE        = 50 
 SYMBIONT_POP_SIZE           = 200
-PROGRAM_MIN_INSTRUCTIONS    = 1
+PROGRAM_MIN_INSTRUCTIONS    = 2
 PROGRAM_MAX_INSTRUCTIONS    = 5
 TRAINING_PERCENT            = 70
 RELATIVE_NOVELTY_WEIGHT     = 0.5
@@ -37,7 +37,7 @@ ADD_INSTRUCTION_RATE        = 0.5
 DELETE_INSTRUCTION_RATE     = 0.5
 INSTRUCTION_MUTATION_RATE   = 0.1
 INSTRUCTION_SWAP_RATE       = 0.1
-LABEL_SAMPLE_COUNT          = 20
+LABEL_SAMPLE_COUNT          = 50
 
 
 # Number of times to try before we give up
@@ -756,7 +756,7 @@ def decode(encoded):
     return instruction(mode, target, opcode, source, encoded)
 
 ###############################################################
-###VARIATION
+###VARIATION OPERATORS
 ###############################################################
 
 # Instruction Variation Operator Mutate
@@ -1040,7 +1040,7 @@ def printAllRelevantAttributesForLabels(isTest, isAll):
         fp = open(filename)
     except IOError:
         # If not exists, create the file
-        fp = open(filename, 'w+')
+        fp = open(filename, 'wb')
         
     print "writing to file: ", filename
     try:
