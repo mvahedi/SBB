@@ -288,13 +288,15 @@ class team:
             self.correct_count[self.action] = self.correct_count[self.action] + 1    
         return isCorrect
 
-    def calculateDetectionRates(self, isTest = False):
+    def calculateDetectionRates(self, isTest = False, isAll = False):
         detectionRate = 0
         accumulativeDetectionRate = 0
         index = 0
         max_detected_value = None
         if isTest == True:
             ld = test_label_disctribution
+        elif isAll == True:
+            ld = label_disctribution   
         else:
             ld = train_label_disctribution
         while index < LABEL_COUNT:
@@ -852,7 +854,7 @@ def printTeams():
         print 'Team: ', j, 'Team Action: ' ,host.getAction(), ' Detection Rate: ', host.getTeamDetectionRate(), ' Accumulative Detection Rate: ', host.getAccumulativeDetectionRate(), ' Distance: ', host.getDistance() , ' # of active symbionts: ', len(host.getActiveSymbionts()), ' SCORE: ', host.getScore()
         j = j + 1
 
-def saveGenerationResults(isTest = False):
+def saveGenerationResults(isTest = False, isAll = False):
     global host_population
     global generation
     generation_results = []
@@ -873,14 +875,16 @@ def saveGenerationResults(isTest = False):
             if exc.errno != errno.EEXIST:
                 raise
     if isTest == True:
-        filename = directory + "LastGeneration.csv"
+        filename = directory + "Test_Data.csv"
+    elif isAll == True:
+        filename = directory + "All_Data.csv"    
     else:               
         filename = directory + 'genration' + str(generation) + '.csv'            
     try:
         fp = open(filename)
     except IOError:
         # If not exists, create the file
-        fp = open(filename, 'w+')
+        fp = open(filename, 'wb')
         
     print "writing to file: ", filename
     headings = ['Host','TeamAction','DetectionRate', 'AccumulativeDetectionRate','ErrorRate', 'AccumulativeErrorRate',"Distance",'ActiveSymbiontCount','Score']   
@@ -918,26 +922,26 @@ def calculateTeamDistance(team1, team2):
         distance = Decimal((Decimal(distance) - Decimal((Decimal(intersect_count)/Decimal(union_count)))))
     return distance           
 
-def rank_teams(isTest = False):
+def rank_teams(isTest = False, isAll = False):
     global host_population
     global data_count
     global train_data_count
     global test_data_count
+    global data
+    global test_data
+    global train_data 
+
     if isTest:
         print '****** Ranking Teams with Test data - DATA COUNT: ', test_data_count
         rankData = test_data
+    elif isAll:
+        print '****** Ranking Teams with All data - DATA COUNT: ', data_count
+        rankData = data
     else:
         print '****** Ranking Teams with Training data - DATA COUNT: ', train_data_count 
         rankData = train_data 
 
     host_population = flatten(host_population)
-
-    #Evaluate Teams and calculate team detection rate
-    #for host in host_population:
-    #    if not host.isEvaluated():
-    #        for exemplar in data:
-    #            host.evaluate_team(exemplar)
-    #        host.calculateDetectionRates()
 
     for host in host_population:
         host.resetTeam()
@@ -947,7 +951,7 @@ def rank_teams(isTest = False):
             host.evaluate_team(exemplar)
 
     for host in host_population:
-        host.calculateDetectionRates(isTest)
+        host.calculateDetectionRates(isTest, isAll)
 
     host_population.sort(key = lambda i: i.getTeamDetectionRate(), reverse=True)
 
@@ -967,7 +971,7 @@ def rank_teams(isTest = False):
     host_id = 1            
     for host in host_population:
         host_id = host_id + 1
-        host.calculateDetectionRates(isTest)
+        host.calculateDetectionRates(isTest, isAll)
         index = 0
         while index < LABEL_COUNT:
             print host_id , " " , host.getCorrectCount(index) , " " , host.getAccumulativeCorrectCount(index)
@@ -1094,6 +1098,8 @@ def run_gp():
             print "****** FINAL TEAMS: "
             rank_teams(True)
             saveGenerationResults(True)
+            rank_teams(False, True)
+            saveGenerationResults(False, True)
             printTeams()
         else: 
             cleanup()   
