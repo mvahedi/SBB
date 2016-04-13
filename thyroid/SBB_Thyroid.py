@@ -11,13 +11,17 @@ from decimal import *
 ###CONSTANTS - AKA CONFIGURATION
 ###############################################################
 
+### initialization config
 LABELS = ['1','2','3']
 LABEL_COUNT = len(LABELS)
-DATA_DELIMETER = ' '
+DATA_DELIMITER = ' '
+OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
+OP_COUNT = len(OPERATORS)
+LABEL_INDEX = 21
 
 INSTRUCTION_POP_SIZE        = 50 
 SYMBIONT_POP_SIZE           = 200
-PROGRAM_MIN_INSTRUCTIONS    = 1
+PROGRAM_MIN_INSTRUCTIONS    = 2
 PROGRAM_MAX_INSTRUCTIONS    = 5
 TRAINING_PERCENT            = 70
 RELATIVE_NOVELTY_WEIGHT     = 0.5
@@ -29,6 +33,7 @@ MAX_TEAM_SIZE               = 10
 POPULATION_REMOVAL_RATE     = 0.20
 POPULATION_PARENT_RATE      = POPULATION_REMOVAL_RATE
 
+### Rates for Variation Operators
 TEAM_ADD_RATE               = 0.7
 TEAM_DELETE_RATE            = 0.7
 SYMBIONT_MODIFICATION_RATE  = 0.2
@@ -37,27 +42,23 @@ ADD_INSTRUCTION_RATE        = 0.5
 DELETE_INSTRUCTION_RATE     = 0.5
 INSTRUCTION_MUTATION_RATE   = 0.1
 INSTRUCTION_SWAP_RATE       = 0.1
-LABEL_SAMPLE_COUNT          = 20
+LABEL_SAMPLE_COUNT          = 50
 
-
-# Number of times to try before we give up
+### Number of times to try before we give up
 MAX_ALLOWABLE_GENERATIONS   = 250
 MIN_TEAM_SCORE = 0.85
+SAVE_GENERATIONS = 5
 
-OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
-LABEL_INDEX = 21
-
-OP_COUNT = len(OPERATORS)
+### genotypic configurations
 TARGET_COUNT = 4
 SOURCE_COUNT = 21
-
 MODE_BIT_COUNT = 1
 OP_BIT_COUNT = 3
 TARGET_BIT_COUNT = 2
 SOURCE_BIT_COUNT = 5
 ENCODED_BIT_COUNT = MODE_BIT_COUNT + OP_BIT_COUNT + TARGET_BIT_COUNT + SOURCE_BIT_COUNT
 ENCODED_DECIMAL_EQUIVELANT = 2 ** ENCODED_BIT_COUNT
-SAVE_GENERATIONS = 5
+
 
 ###############################################################
 ###Global Variables
@@ -292,7 +293,7 @@ class symbiont:
         return sources        
 
 class team:
-    def evaluate_team(self, exemplar):
+    def evaluate_team(self, exemplar, updateAttributes = False):
         isCorrect = False
         for symbiont in self.symbionts:
             symbiont.reset()
@@ -302,7 +303,8 @@ class team:
         if LABELS[self.action] == exemplar[LABEL_INDEX]:
             self.updateActiveSymbionts()
             isCorrect = True
-            updateRelevantAttributesForLabels(self.action, self.symbionts[0].getAttributes())
+            if updateAttributes == True:
+                updateRelevantAttributesForLabels(self.action, self.symbionts[0].getAttributes())
             self.correct_count[self.action] = self.correct_count[self.action] + 1    
         return isCorrect
 
@@ -478,7 +480,7 @@ def read_data_file():
     print '****** Reading Data ... '
     with open('ann-train.data') as data_file:
         for line in data_file:
-            data.append(line.strip().split(DATA_DELIMETER))
+            data.append(line.strip().split(DATA_DELIMITER))
 
     data_count = len(data)
     index = 0
@@ -544,7 +546,7 @@ def read_test_data():
     global test_label_disctribution
     with open('ann-test.data') as data_file:
         for line in data_file:
-            test_data.append(line.strip().split(DATA_DELIMETER))
+            test_data.append(line.strip().split(DATA_DELIMITER))
     
     test_data_count = len(test_data)
     print "Test Data Count ", test_data_count
@@ -571,7 +573,7 @@ def read_train_data():
     train_data = []
     with open('ann-train.data') as data_file:
         for line in data_file:
-            train_data.append(line.strip().split(DATA_DELIMETER))
+            train_data.append(line.strip().split(DATA_DELIMITER))
     train_data_count = len(train_data)
     print "All training Data Count ", train_data
     index = 0
@@ -755,7 +757,7 @@ def decode(encoded):
     return instruction(mode, target, opcode, source, encoded)
 
 ###############################################################
-###VARIATION
+###VARIATION OPERATORS
 ###############################################################
 
 # Instruction Variation Operator Mutate
@@ -1039,7 +1041,7 @@ def printAllRelevantAttributesForLabels(isTest, isAll):
         fp = open(filename)
     except IOError:
         # If not exists, create the file
-        fp = open(filename, 'w+')
+        fp = open(filename, 'wb')
         
     print "writing to file: ", filename
     try:
@@ -1078,7 +1080,7 @@ def rank_teams(isTest = False, isAll = False):
 
     for exemplar in rankData:
         for host in host_population:
-            host.evaluate_team(exemplar)
+            host.evaluate_team(exemplar, isTest or isAll)
 
     for host in host_population:
         host.calculateDetectionRates(isTest, isAll)
@@ -1092,7 +1094,7 @@ def rank_teams(isTest = False, isAll = False):
         isDetected = False;
         label = LABELS.index(exemplar[LABEL_INDEX])
         for host in host_population:
-            isCorrect = host.evaluate_team(exemplar)
+            isCorrect = host.evaluate_team(exemplar, isTest or isAll)
             if isCorrect or isDetected:
                 acc = host.getAccumulativeCorrectCount(label) + 1
                 host.setAccumulativeCorrectCount(label, acc)
