@@ -18,8 +18,11 @@ Configurations:
 The configuration parameters are the the very top of the python files. The values are set for the three datasets used in this project but they can be adjusted easily to work with a new dataset. The config values for Thyroid dataset is explained below:
 
 ----------------------------------------------------------- initialization config
+
 LABELS = ['1','2','3'] 					--- classes
+
 LABEL_COUNT = len(LABELS) 				--- number of classes
+
 DATA_DELIMITER = ' ' 					--- data delimiter used 
 OPERATORS = ['+', '-', '*', '/', 'cos', 'ln', 'exp', 'if']
 OP_COUNT = len(OPERATORS)				--- number of operators
