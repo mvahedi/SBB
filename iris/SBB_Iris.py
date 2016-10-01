@@ -83,6 +83,13 @@ label_disctribution = []
 train_label_disctribution = []
 test_label_disctribution = []
 
+generation_detection_rate_sum = 0
+generation_distance_sum = 0
+generation_score_sum = 0
+generation_detection_rate_average = []
+generation_distance_average = []
+generation_score_average = []
+
 ###############################################################
 ###CLASSES
 ###############################################################
@@ -1000,13 +1007,32 @@ def evaluate_teams():
     host_population.extend(new_teams)
     del parent_host_population[:]
     remove_similar_teams()
-    #printTeams()
     rank_teams()
     host_population = flatten(host_population)
     host_population = [i for i in host_population if i is not None]
     host_population.sort(key = lambda i: i.getScore(), reverse=True)
     printTeams()  
     return checkGeneration()
+
+def calculate_generation_average():
+    global generation_detection_rate_sum
+    global generation_distance_sum
+    global generation_score_sum
+    global generation_detection_rate_average
+    global generation_distance_average
+    global generation_score_average
+    generation_detection_rate_sum = 0
+    generation_distance_sum = 0
+    generation_score_sum = 0
+    j = 0
+    for host in host_population: 
+        generation_detection_rate_sum+=host.getTeamDetectionRate()
+        generation_distance_sum+=host.getDistance()
+        generation_score_sum+=host.getScore()
+        j = j + 1
+    generation_detection_rate_average.append(generation_detection_rate_sum/len(host_population)) 
+    generation_distance_average.append(generation_distance_sum/len(host_population)) 
+    generation_score_average.append(generation_score_sum/len(host_population))  
 
 def cleanup():
     if len(host_population) > TEAM_COUNT:
@@ -1015,7 +1041,6 @@ def cleanup():
         delete_count = delete_count + int(len(host_population) * POPULATION_REMOVAL_RATE)
         del host_population[-delete_count:]
         print "AFTER REMOVING ", delete_count, " TEAMS: ", len(host_population)
-        #printTeams()
     clean_symbionts()
 
 
@@ -1086,6 +1111,10 @@ def run_gp():
     global generation
     global symbiont_population
     global host_population
+    global generation_detection_rate_sum
+    global generation_score_sum
+    global generation_detection_rate_average
+    global generation_score_average
     print '****** Initial host population size: ', len(host_population)
     stop_criteria_met = False
     while (stop_criteria_met == False):
@@ -1107,7 +1136,13 @@ def run_gp():
             cleanup()   
             selectParents()
             evolve_teams()   
+        calculate_generation_average()
+
     print 'Total number of generations: ', generation
+    i = 1
+    for i in range(generation):
+        print 'Generation: ', i, " average detection rate: ", generation_detection_rate_average, " average score: ", generation_score_average
+        i += 1
 
 ###############################################################
 ###START
