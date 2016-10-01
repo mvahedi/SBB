@@ -1,6 +1,10 @@
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
 ###############################################################
 ###READ DATA
 ###############################################################
+from config import *
+
 def get_user_input():
     menu = {}
     menu['1']="Iris" 

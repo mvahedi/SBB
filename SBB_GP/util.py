@@ -1,7 +1,10 @@
-
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
 ###############################################################
 ###UTILS
 ###############################################################
+from config import *
+
 def flatten(l):
     flatList = []
     for elem in l:

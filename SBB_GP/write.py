@@ -1,3 +1,11 @@
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
+###############################################################
+### WRITE
+###############################################################
+
+from config import *
+
 def printTeams():
     global host_population
     j = 0
@@ -47,3 +55,42 @@ def saveGenerationResults(isTest = False, isAll = False):
                 , row['DetectionRate'], row['AccumulativeDetectionRate']
                 , row['ErrorRate'], row['AccumulativeErrorRate']
                 , row["Distance"],row['ActiveSymbiontCount'],row['Score']]) 
+
+
+def saveAverageResults():
+    global host_population
+    global generation
+    global generation_detection_rate_average
+    global generation_distance_average
+    global generation_score_average
+
+    average_results = []
+    i = 1
+    for i in range(generation):
+        print 'Generation: ', i, ' average detection rate: ', generation_detection_rate_average[i], ' average distance: ', generation_distance_average[i], ' average score: ', generation_score_average[i]
+        generation_results.append({"Generation":i,"average detection rate":generation_detection_rate_average[i],
+            "average distance":generation_distance_average[i],
+            "average score":generation_score_average[i]})
+        i += 1
+    directory = os.path.join('results/')
+    if not os.path.exists(os.path.dirname(directory)):
+        try:
+            os.makedirs(os.path.dirname(directory))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+    filename = directory + "GenerationAverages.csv"                        
+    try:
+        fp = open(filename)
+    except IOError:
+        # If not exists, create the file
+        fp = open(filename, 'wb')
+        
+    print "writing to file: ", filename
+    headings = ['Generation','average detection rate','average distance','average score']   
+    with fp as myfile:
+        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+        wr.writerow(headings)
+        for row in generation_results:
+            wr.writerow([row['Host'],row['average detection rate']
+                , row['average distance'], row['average score']]) 

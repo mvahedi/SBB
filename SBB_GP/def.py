@@ -1,6 +1,9 @@
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
 ###############################################################
 ###CLASSES
 ###############################################################
+from config import *
 
 class instruction:
     def __init__(self,mode,target,opcode,source, encoded):

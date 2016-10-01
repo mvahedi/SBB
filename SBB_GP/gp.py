@@ -1,6 +1,10 @@
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
 ###############################################################
 ### CALCULATION
 ###############################################################
+from config import *
+from write import *
 
 def checkGeneration():
     global host_population
@@ -178,7 +182,4 @@ def run_gp():
         calculate_generation_average()
 
     print 'Total number of generations: ', generation
-    i = 1
-    for i in range(generation):
-        print 'Generation: ', i, " average detection rate: ", generation_detection_rate_average, " average score: ", generation_score_average
-        i += 1
+    saveAverageResults()

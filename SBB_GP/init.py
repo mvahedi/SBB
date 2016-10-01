@@ -1,6 +1,9 @@
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
 ###############################################################
 ###INITIALIZE
 ###############################################################
+from config import *
 
 #This function randomly generates an instruction gene and returns the instruction
 #NOTE: for some reason it doesn't work! The instruction works fine

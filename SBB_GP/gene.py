@@ -1,6 +1,9 @@
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
 ###############################################################
 ###GENE OPERATORS
 ###############################################################
+from config import *
 
 #MODE TARGET OPCODE SOURCE
 #0 000 000 000

@@ -1,6 +1,9 @@
+# Fall-Winter 2016 
+__author__ = 'Maryam Vahedi'
 ###############################################################
 ###VARIATION
 ###############################################################
+from config import *
 
 # Instruction Variation Operator Mutate
 def mutate(encoded):

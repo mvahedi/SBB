@@ -1,15 +1,14 @@
 # Fall-Winter 2016 
 __author__ = 'Maryam Vahedi'
+###############################################################
+###CONSTANTS - AKA CONFIGURATION
+###############################################################
 import csv
 import random
 import math
 import os
 from collections import defaultdict
 from decimal import *
-
-###############################################################
-###CONSTANTS - AKA CONFIGURATION
-###############################################################
 
 ### initialization config
 LABELS = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
