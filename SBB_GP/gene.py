@@ -4,6 +4,7 @@ __author__ = 'Maryam Vahedi'
 ###GENE OPERATORS
 ###############################################################
 from config import *
+from class_def import *
 
 #MODE TARGET OPCODE SOURCE
 #0 000 000 000

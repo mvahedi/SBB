@@ -917,7 +917,7 @@ def saveAverageResults():
     i = 1
     for i in range(generation):
         print 'Generation: ', i, ' average detection rate: ', generation_detection_rate_average[i], ' average distance: ', generation_distance_average[i], ' average score: ', generation_score_average[i]
-        generation_results.append({"Generation":i,"average detection rate":generation_detection_rate_average[i],
+        average_results.append({"Generation":i,"average detection rate":generation_detection_rate_average[i],
             "average distance":generation_distance_average[i],
             "average score":generation_score_average[i]})
         i += 1
@@ -940,8 +940,8 @@ def saveAverageResults():
     with fp as myfile:
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         wr.writerow(headings)
-        for row in generation_results:
-            wr.writerow([row['Host'],row['average detection rate']
+        for row in average_results:
+            wr.writerow([row['Generation'],row['average detection rate']
                 , row['average distance'], row['average score']]) 
 
 def checkGeneration():

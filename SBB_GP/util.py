@@ -27,48 +27,42 @@ def cleanup():
     clean_symbionts()
 
 def remove_similar_teams():
-    global generation
-    global host_population
     new_host_population = []
-    print '****** removing similar teams in generation: ', generation
-    print 'number of teams: ', len(host_population)
+    print '****** removing similar teams in generation: ', get_generation()
+    print 'number of teams: ', len(get_host_population())
     i = 0
-    for first_team in host_population:
+    for first_team in get_host_population():
         j = i + 1
         is_duplicate = False
-        while j < len(host_population):
-            if host_population[i] == host_population[j]:
+        while j < len(get_host_population()):
+            if get_host_population()[i] == get_host_population()[j]:
                 is_duplicate = True
                 break
             j = j + 1
         if not is_duplicate:
             new_host_population.append(first_team)
         i= i + 1
-    host_population =  new_host_population[:] 
-    print 'number of unique teams: ', len(host_population)      
+    set_host_population(new_host_population[:])
+    print 'number of unique teams: ', len(get_host_population())      
 
 
 def clean_symbionts():
-    global symbiont_population
-    global host_population
-    host_population = flatten(host_population)
-    host_population = [i for i in host_population if i is not None]
-    del symbiont_population[:]
-    for i in host_population:
+    set_host_population(flatten(get_host_population()))
+    set_host_population([i for i in get_host_population() if i is not None])
+    delete_symbiont_population()
+    for i in get_host_population():
         team_symbionts = i.getSymbionts()
         for s in team_symbionts:
-            if s not in symbiont_population:
-                symbiont_population.append(s) 
+            if s not in get_symbiont_population():
+                append_symbiont_population(s) 
     clean_instruction_population()   
 
 def clean_instruction_population():
-    global instruction_population
-    global symbiont_population
-    symbiont_population = flatten(symbiont_population)
-    symbiont_population = [i for i in symbiont_population if i is not None]
-    del instruction_population[:]
-    for i in symbiont_population:
+    set_symbiont_population(flatten(get_symbiont_population()))
+    set_symbiont_population([i for i in get_symbiont_population() if i is not None])
+    delete_instruction_population()
+    for i in get_symbiont_population():
         program_instructions = i.getInstructions()
         for s in program_instructions:
-            if s not in instruction_population:
-                instruction_population.append(s)        
+            if s not in get_instruction_population():
+                append_instruction_population(s)        

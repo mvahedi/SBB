@@ -4,6 +4,9 @@ __author__ = 'Maryam Vahedi'
 ###VARIATION
 ###############################################################
 from config import *
+from util import *
+from class_def import *
+from gene import *
 
 # Instruction Variation Operator Mutate
 def mutate(encoded):
@@ -40,15 +43,14 @@ def crossover(parent1, parent2):
 # 2- Randomly select an instruction from the indovidual
 # 3- Replace the randomply selected instruction in step 2 with the instruction selected in step 1
 def add_instruction(selected_symbiont):
-    global instruction_population
     symbiont_instructions = []
     new_symbiont = None
     symbiont_instructions = flatten(selected_symbiont.getInstructions())
     if len(symbiont_instructions) < PROGRAM_MAX_INSTRUCTIONS:
-        instruction_population = flatten(instruction_population)
-        new_instruction_index = random.randint(0, len(instruction_population)-1)
+        set_instruction_population(flatten(get_instruction_population()))
+        new_instruction_index = random.randint(0, len(get_instruction_population())-1)
         index = random.randint(0, len(symbiont_instructions)-1)
-        symbiont_instructions.insert(index, instruction_population[new_instruction_index])
+        symbiont_instructions.insert(index, get_instruction_population()[new_instruction_index])
         new_symbiont = symbiont(symbiont_instructions, selected_symbiont.getAction())
     return new_symbiont
 
@@ -68,7 +70,6 @@ def remove_instruction(selected_symbiont):
 # 4- Replace the new instruction in the symbiont with the old one
 # Note: The old instruction will remain in the instruction population until the next generation of instructions are selected
 def create_new_program_by_mutation(selected_symbiont):
-    global instruction_population
     symbiont_instructions = []
     symbiont_instructions = flatten(selected_symbiont.getInstructions())
     #print symbiont_instructions
@@ -78,8 +79,8 @@ def create_new_program_by_mutation(selected_symbiont):
         for ind in symbiont_instructions[index]:
             ind.print_instruction()
     mutated_instruction = decode(mutate(symbiont_instructions[index].getEncoded()))
-    if mutated_instruction not in instruction_population:
-        instruction_population.append(mutated_instruction)
+    if mutated_instruction not in get_instruction_population():
+        append_instruction_population(mutated_instruction)
 
     del symbiont_instructions[index]
     symbiont_instructions.insert(index, mutated_instruction)
@@ -121,16 +122,34 @@ def apply_variation_operators_to_symbionts(parent_population):
             temp_symbiont.setAction(new_symbiont_action)       
         new_symbiont.append(temp_symbiont)
     return new_symbiont           
+
+def multyActionTeam(symbionts):
+    action = None
+    previous_action = None
+    more_than_one_action = False    
+    for s in symbionts:
+        action = s.getAction()
+        if previous_action != action:
+            more_than_one_action = True
+        else:
+            previous_action = action
+
+    while True:   
+        symbiont_index = random.randint(0, len(get_symbiont_population())-1) 
+        new_symbiont = get_symbiont_population()[symbiont_index]
+        new_symbiont_action = new_symbiont.getAction() 
+        if new_symbiont_action != action:
+            break
+
+    index_to_replace = random.randint(0, len(symbionts)-1) 
+    symbionts.insert(index_to_replace, new_symbiont)
+    del symbionts[index_to_replace + 1]
     
 def evolve_teams():
-    global parent_host_population
-    global new_teams
-    global generation
-    global symbiont_population
-    del new_teams[:] 
-    print 'EVOLVING', len(parent_host_population), 'TEAMS IN GENERATION ', generation 
+    delete_new_teams()
+    print 'EVOLVING', len(get_parent_host_population()), 'TEAMS IN GENERATION ', get_generation() 
     i = 1
-    for host in flatten(parent_host_population):
+    for host in flatten(get_parent_host_population()):
         changed = False
         team_symbionts = host.getSymbionts()
         new_team_symbionts = team_symbionts[:]
@@ -147,8 +166,8 @@ def evolve_teams():
             #ADD
             if len(new_team_symbionts) > MIN_TEAM_SIZE and len(new_team_symbionts) < MAX_TEAM_SIZE:
                 print 'Team ', i, ' Adding new symbionts'
-                new_symbiont_index = random.randint(0, len(symbiont_population)-1)    
-                new_team_symbionts.append(symbiont_population[new_symbiont_index])
+                new_symbiont_index = random.randint(0, len(get_symbiont_population())-1)    
+                new_team_symbionts.append(get_symbiont_population()[new_symbiont_index])
                 changed = True 
 
         if random.random() < SYMBIONT_MODIFICATION_RATE:        
@@ -159,7 +178,7 @@ def evolve_teams():
         if changed == True:
             multyActionTeam(new_team_symbionts)    
             print 'adding new team!!!'
-            new_teams.append(team(new_team_symbionts)) 
+            append_new_teams(team(new_team_symbionts)) 
         i = i + 1       
-        new_teams =  flatten(new_teams)
-    print '# of new teams in generation: ', generation, ' is: ', len(new_teams)
+        set_new_teams(flatten(get_new_teams()))
+    print '# of new teams in generation: ', get_generation(), ' is: ', len(get_new_teams())

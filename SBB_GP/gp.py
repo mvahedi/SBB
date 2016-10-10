@@ -4,14 +4,16 @@ __author__ = 'Maryam Vahedi'
 ### CALCULATION
 ###############################################################
 from config import *
+from util import *
+from init import *
+from variation import *
 from write import *
 
 def checkGeneration():
-    global host_population
     teams_are_good = False
-    host_population = flatten(host_population)
-    print len(host_population)
-    if host_population[len(host_population)-1].getScore() >= MIN_TEAM_SCORE:
+    set_host_population(flatten(get_host_population()))
+    print len(get_host_population())
+    if get_host_population()[len(get_host_population())-1].getScore() >= getMIN_TEAM_SCORE():
         teams_are_good = True
     return teams_are_good
 
@@ -32,45 +34,37 @@ def calculateTeamDistance(team1, team2):
     return distance           
 
 def rank_teams(isTest = False, isAll = False):
-    global host_population
-    global data_count
-    global train_data_count
-    global test_data_count
-    global data
-    global test_data
-    global train_data 
-
     if isTest:
-        print '****** Ranking Teams with Test data - DATA COUNT: ', test_data_count
-        rankData = test_data
+        print '****** Ranking Teams with Test data - DATA COUNT: ', get_test_data_count()
+        rankData = get_test_data()
     elif isAll:
-        print '****** Ranking Teams with All data - DATA COUNT: ', data_count
-        rankData = data
+        print '****** Ranking Teams with All data - DATA COUNT: ', get_data_count()
+        rankData = get_data()
     else:
-        print '****** Ranking Teams with Training data - DATA COUNT: ', train_data_count 
-        rankData = train_data 
+        print '****** Ranking Teams with Training data - DATA COUNT: ', get_train_data_count() 
+        rankData = get_train_data() 
 
-    host_population = flatten(host_population)
+    set_host_population(flatten(get_host_population()))
 
-    for host in host_population:
+    for host in get_host_population():
         host.resetTeam()
 
     for exemplar in rankData:
-        for host in host_population:
+        for host in get_host_population():
             host.evaluate_team(exemplar)
 
-    for host in host_population:
+    for host in get_host_population():
         host.calculateDetectionRates(isTest, isAll)
 
-    host_population.sort(key = lambda i: i.getTeamDetectionRate(), reverse=True)
+    sort_host_population()
 
-    for host in host_population:
+    for host in get_host_population():
         host.resetTeam()
 
     for exemplar in rankData:
         isDetected = False;
-        label = LABELS.index(exemplar[LABEL_INDEX])
-        for host in host_population:
+        label = getLABELS().index(exemplar[getLABEL_INDEX()])
+        for host in get_host_population():
             isCorrect = host.evaluate_team(exemplar)
             if isCorrect or isDetected:
                 acc = host.getAccumulativeCorrectCount(label) + 1
@@ -78,96 +72,77 @@ def rank_teams(isTest = False, isAll = False):
                 isDetected = True              
 
     host_id = 1            
-    for host in host_population:
+    for host in get_host_population():
         host_id = host_id + 1
         host.calculateDetectionRates(isTest, isAll)
         index = 0
-        while index < LABEL_COUNT:
+        while index < getLABEL_COUNT():
             print host_id , " " , host.getCorrectCount(index) , " " , host.getAccumulativeCorrectCount(index)
             index = index + 1 
         print host_id , " " , host.getTeamDetectionRate() , " " , host.getAccumulativeDetectionRate()            
 
     #Calculate team distances
-    for host in host_population:
+    for host in get_host_population():
         host_average_distance = 0
-        for other_host in host_population: 
+        for other_host in get_host_population(): 
             host_average_distance = host_average_distance + calculateTeamDistance(host, other_host)
-        host_average_distance = Decimal(host_average_distance / len(host_population))
+        host_average_distance = Decimal(host_average_distance / get_host_population_length())
         host.setDistance(host_average_distance)  
         host.calculateScore()     
 
 def evaluate_teams():
-    global generation
-    global host_population
-    global parent_host_population
-    global new_teams
     optimal_detection_rate_reached = False
-    print "****** Evaluating ", len(host_population), " teams ******"
-    host_population.extend(new_teams)
-    del parent_host_population[:]
+    print "****** Evaluating ", get_host_population_length(), " teams ******"
+    extend_host_population(get_new_teams())
+    delete_parent_host_population()
     remove_similar_teams()
     rank_teams()
-    host_population = flatten(host_population)
-    host_population = [i for i in host_population if i is not None]
-    host_population.sort(key = lambda i: i.getScore(), reverse=True)
+    set_host_population(flatten(get_host_population()))
+    set_host_population([i for i in get_host_population() if i is not None])
+    sort_by_score_host_population()
     printTeams()  
     return checkGeneration()
 
 def calculate_generation_average():
-    global generation_detection_rate_sum
-    global generation_distance_sum
-    global generation_score_sum
-    global generation_detection_rate_average
-    global generation_distance_average
-    global generation_score_average
-    generation_detection_rate_sum = 0
-    generation_distance_sum = 0
-    generation_score_sum = 0
+    set_generation_detection_rate_sum(0)
+    set_generation_distance_sum(0)
+    set_generation_score_sum(0)
     j = 0
-    for host in host_population: 
-        generation_detection_rate_sum+=host.getTeamDetectionRate()
-        generation_distance_sum+=host.getDistance()
-        generation_score_sum+=host.getScore()
+    for host in get_host_population(): 
+        set_generation_detection_rate_sum(get_generation_detection_rate_sum()+host.getTeamDetectionRate())
+        set_generation_distance_sum(get_generation_distance_sum()+host.getDistance())
+        set_generation_score_sum(get_generation_score_sum()+host.getScore())
         j = j + 1
-    generation_detection_rate_average.append(generation_detection_rate_sum/len(host_population)) 
-    generation_distance_average.append(generation_distance_sum/len(host_population)) 
-    generation_score_average.append(generation_score_sum/len(host_population))  
+    append_generation_detection_rate_average(get_generation_detection_rate_sum()/get_host_population_length())
+    append_generation_distance_average(get_generation_distance_sum()/get_host_population_length()) 
+    append_generation_score_average(get_generation_score_sum()/get_host_population_length())
 
 
 def selectParents():
-    global host_population
-    global parent_host_population
     #Select parent teams
-    del parent_host_population[:]
-    parent_count = int(len(host_population) * POPULATION_PARENT_RATE)
-    parent_indexes = random.sample(range(0, len(host_population)-1), parent_count)
+    delete_parent_host_population()
+    parent_count = int(len(get_host_population()) * getPOPULATION_PARENT_RATE())
+    parent_indexes = random.sample(range(0, len(get_host_population())-1), parent_count)
     for i in parent_indexes:
-        parent_host_population.append(host_population[i])
-    parent_host_population = flatten(parent_host_population)
-    print "****** Parent population: ", len(parent_host_population)
+        append_parent_host_population(get_host_population()[i])
+    set_parent_host_population(flatten(get_parent_host_population()))
+    print "****** Parent population: ", len(get_parent_host_population())
     j = 0
-    for host in parent_host_population: 
+    for host in get_parent_host_population(): 
         print 'Team: ', j, 'Team Action: ' ,host.getAction(), ' Team Score: ', host.getScore()
         j = j + 1  
 
 def run_gp():
-    global generation
-    global symbiont_population
-    global host_population
-    global generation_detection_rate_sum
-    global generation_score_sum
-    global generation_detection_rate_average
-    global generation_score_average
     print '****** Initial host population size: ', len(host_population)
     stop_criteria_met = False
     while (stop_criteria_met == False):
-        generation+=1
+        set_generation(get_generation()+1)
         optimal_detection_rate_reached = evaluate_teams()
         # Only save results for every 10 generation
-        if generation == 1 or generation % SAVE_GENERATIONS == 0 or optimal_detection_rate_reached:
+        if get_generation() == 1 or get_generation() % getSAVE_GENERATIONS() == 0 or optimal_detection_rate_reached:
             saveGenerationResults()
         # Last generation    
-        if generation == MAX_ALLOWABLE_GENERATIONS or optimal_detection_rate_reached:
+        if get_generation() == getMAX_ALLOWABLE_GENERATIONS() or optimal_detection_rate_reached:
             stop_criteria_met = True
             print "****** FINAL TEAMS: "
             rank_teams(True)
@@ -181,5 +156,5 @@ def run_gp():
             evolve_teams()   
         calculate_generation_average()
 
-    print 'Total number of generations: ', generation
+    print 'Total number of generations: ', get_generation()
     saveAverageResults()

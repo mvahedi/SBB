@@ -111,18 +111,18 @@ class symbiont:
         self.targetValues = []
         self.correctLabelCount = 0
         self.detection_rate = Decimal(0)
-        for index in range(TARGET_COUNT):
+        for index in range(getTARGET_COUNT()):
             self.setTargetValue(0)  
 
     def evaluate(self, exemplar):
-        tvs =  flatten(self.getTargetValues())
-        for s in flatten(self.getInstructions()):
+        tvs =  self.getTargetValues()
+        for s in self.getInstructions():
             if type(s) is list:
                 for wtf in s:
                     tvs = wtf.run_instruction(flatten(tvs), exemplar)
             else:
-                tvs = s.run_instruction(flatten(tvs), exemplar)
-            self.targetValues = flatten(tvs)          
+                tvs = s.run_instruction(tvs, exemplar)
+            self.targetValues = tvs          
         self.bid = self.getTargetValues()[0] 
 
     def evaluateSymbiont(self):
@@ -202,7 +202,7 @@ class team:
             symbiont.evaluate(exemplar)    
         self.symbionts.sort(key = lambda i: i.getBid(), reverse=True)
         self.action = self.symbionts[0].getAction()
-        if LABELS[self.action] == exemplar[LABEL_INDEX]:
+        if getLABELS()[self.action] == exemplar[getLABEL_INDEX()]:
             self.updateActiveSymbionts()
             isCorrect = True
             self.correct_count[self.action] = self.correct_count[self.action] + 1    
@@ -214,12 +214,12 @@ class team:
         index = 0
         max_detected_value = None
         if isTest == True:
-            ld = test_label_disctribution
+            ld = get_all_test_label_distribution()
         elif isAll == True:
-            ld = label_disctribution   
+            ld = get_all_label_distribution()   
         else:
-            ld = train_label_disctribution
-        while index < LABEL_COUNT:
+            ld = get_all_train_label_distribution()
+        while index < getLABEL_COUNT():
             detected_value = Decimal(Decimal(self.correct_count[index]) / Decimal(ld[index]))
             if max_detected_value is None or max_detected_value < detected_value:
                 max_detected_value = detected_value
@@ -227,17 +227,16 @@ class team:
             detectionRate = detectionRate + Decimal(Decimal(self.correct_count[index]) / Decimal(ld[index]))
             accumulativeDetectionRate = accumulativeDetectionRate + Decimal(Decimal(self.accumulative_correct_count[index]) / Decimal(ld[index]))
             index = index + 1 
-        detectionRate = Decimal(Decimal(detectionRate) / Decimal(len(label_disctribution)))
-        accumulativeDetectionRate = Decimal(Decimal(accumulativeDetectionRate) / Decimal(len(label_disctribution)))
+        detectionRate = Decimal(Decimal(detectionRate) / Decimal(len(get_all_label_distribution())))
+        accumulativeDetectionRate = Decimal(Decimal(accumulativeDetectionRate) / Decimal(len(get_all_label_distribution())))
         self.team_detection_rate = detectionRate 
         self.accumulative_detection_rate = accumulativeDetectionRate 
-
 
     def updateActiveSymbionts(self):
         self.symbionts.sort(key = lambda i: i.getBid(), reverse=True)
         if len(self.active_symbionts) == 0 or self.symbionts[0] not in self.active_symbionts:
              self.active_symbionts.append(self.symbionts[0])
-        self.active_symbionts = flatten(self.active_symbionts)     
+        self.active_symbionts = self.active_symbionts    
 
     def is_similar(self, other):
         is_similar = False
@@ -247,7 +246,7 @@ class team:
         return is_similar  
 
     def calculateScore(self):
-        self.score = Decimal(Decimal(Decimal(1 - RELATIVE_NOVELTY_WEIGHT) * self.team_detection_rate) + Decimal(Decimal(RELATIVE_NOVELTY_WEIGHT) * self.distance))   
+        self.score = Decimal(Decimal(Decimal(1 - getRELATIVE_NOVELTY_WEIGHT()) * self.team_detection_rate) + Decimal(Decimal(getRELATIVE_NOVELTY_WEIGHT()) * self.distance))   
 
     def resetTeam(self):
         self.team_detection_rate = 0
@@ -257,7 +256,7 @@ class team:
         self.correct_count = []
         self.accumulative_correct_count = []
         index = 0
-        while index < LABEL_COUNT:
+        while index < getLABEL_COUNT():
             self.correct_count.append(0)
             self.accumulative_correct_count.append(0)
             index = index + 1

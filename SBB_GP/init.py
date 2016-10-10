@@ -4,6 +4,10 @@ __author__ = 'Maryam Vahedi'
 ###INITIALIZE
 ###############################################################
 from config import *
+from class_def import *
+from gene import *
+from variation import *
+from util import *
 
 #This function randomly generates an instruction gene and returns the instruction
 #NOTE: for some reason it doesn't work! The instruction works fine
@@ -29,16 +33,14 @@ def generate_instructions():
     
 #This function initiates the instruction population    
 def initiate_instructions():
-    global instruction_population
     p = 0
     while p < INSTRUCTION_POP_SIZE:
         new_instruction = generate_instructions()
-        if new_instruction not in instruction_population:
-            instruction_population.append(new_instruction)  
+        if new_instruction not in get_instruction_population():
+            append_instruction_population(new_instruction)  
             p = p + 1        
 
 def initiate_symbiont_population():
-    global instruction_population
     initiate_instructions()
     symbionts = []
     p = 0
@@ -49,7 +51,7 @@ def initiate_symbiont_population():
         #program_instructions = random.sample(range(0, INSTRUCTION_POP_SIZE-1), PROGRAM_MAX_INSTRUCTIONS)
         i = 0
         for program_instruction in program_instructions:
-            instruction.append(instruction_population[program_instructions[i]])
+            instruction.append(get_instruction_population()[program_instructions[i]])
             i = i + 1
         symbiont_action = random.randint(0, LABEL_COUNT-1)
         ind =  symbiont(instruction, symbiont_action)
@@ -59,9 +61,7 @@ def initiate_symbiont_population():
     return symbionts
 
 def initiate_teams():
-    global symbiont_population
-    global host_population
-    symbiont_population = initiate_symbiont_population()
+    set_symbiont_population(initiate_symbiont_population())
     i = 0
     while i < TEAM_COUNT:
         symbionts = []
@@ -69,33 +69,10 @@ def initiate_teams():
         team_symbionts = random.sample(range(0, INSTRUCTION_POP_SIZE-1), symbiont_count_in_team)
         p = 0
         for symbiont in team_symbionts:
-            symbionts.append(symbiont_population[team_symbionts[p]])
+            symbionts.append(get_symbiont_population()[team_symbionts[p]])
             p = p + 1       
         multyActionTeam(symbionts)
         t =  team(symbionts)
         host_population.append(t)
         i = i + 1
     clean_symbionts() 
-
-def multyActionTeam(symbionts):
-    global symbiont_population
-    action = None
-    previous_action = None
-    more_than_one_action = False    
-    for s in symbionts:
-        action = s.getAction()
-        if previous_action != action:
-            more_than_one_action = True
-        else:
-            previous_action = action
-
-    while True:   
-        symbiont_index = random.randint(0, len(symbiont_population)-1) 
-        new_symbiont = symbiont_population[symbiont_index]
-        new_symbiont_action = new_symbiont.getAction() 
-        if new_symbiont_action != action:
-            break
-
-    index_to_replace = random.randint(0, len(symbionts)-1) 
-    symbionts.insert(index_to_replace, new_symbiont)
-    del symbionts[index_to_replace + 1]
